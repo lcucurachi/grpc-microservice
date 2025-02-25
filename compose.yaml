@@ -1,0 +1,41 @@
+services:
+
+  explore-server:
+    build:
+      context: .
+      target: final
+    ports:
+      - 9001:9001
+    environment:
+      POSTGRES_USER: testingUser
+      POSTGRES_DB: explorer
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: postgres-db
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    command: /app/server
+    develop:
+      watch:         
+        - action: rebuild
+          path: src
+
+  postgres-db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: testingUser
+      POSTGRES_DB: explorer
+      POSTGRES_PASSWORD: testingPassword
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  db-data:

@@ -1,0 +1,9 @@
+with-expecter: true
+packages:
+    github.com/lokker96/grpc_project/domain/repository:
+        # place your package-specific config here
+        config:
+        interfaces:
+            ExplorerRepository:
+                # Modify package-level config for this specific interface (if applicable)
+                config:
