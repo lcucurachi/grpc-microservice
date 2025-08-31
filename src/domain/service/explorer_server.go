@@ -95,7 +95,6 @@ func (s *ExploreServer) ListNewLikedYou(ctx context.Context, request *ep.ListLik
 	}
 
 	// Ideally we should check that the recipient user id exists first by calling a method to check
-
 	liked := true
 
 	userDecisionsLiked, err := s.explorerRepository.GetDecisionsForUserId(ctx, recipientUserID, &liked)
@@ -117,10 +116,9 @@ func (s *ExploreServer) ListNewLikedYou(ctx context.Context, request *ep.ListLik
 		usersLiked[int(userLike.RecipientID)] = true
 	}
 
-	// This is bad and I would not reccomend to use it in production.
-	// We need to use a more specific SQL query with JOINS to simplify this process.
-	// Basically, here we are checking that there isn't a mutual like becasue
-	// we want new users who liked the recipient.
+	// This is bad and it should not be used in production.
+	// Basically, here we are checking that there isn't a mutual like because
+	// we want to return new users who liked the recipient.
 	for _, recipientLike := range recipientDecisionsLiked {
 		_, ok := usersLiked[int(recipientLike.AuthorID)]
 		if !ok {
@@ -160,8 +158,7 @@ func (s *ExploreServer) PutDecision(ctx context.Context, request *ep.PutDecision
 		return nil, fmt.Errorf("error converting recipient user id string: %w", err)
 	}
 
-	// Ideally we should check that both the user ids exists before calling this.
-	// This is especially true if this routine is called from other microservices and not only by the user app.
+	// Ideally we should check that both the user ids exists before calling this
 	err = s.explorerRepository.UpdateDecision(ctx, actorUserId, recipientUserId, request.GetLikedRecipient())
 	if err != nil {
 		return nil, fmt.Errorf("error putting decision: %w", err)

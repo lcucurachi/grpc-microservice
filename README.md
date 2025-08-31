@@ -46,16 +46,16 @@ The project has been implemented following this structure:
 - Testing: I have written some unit tests using a mocking library called mockery (https://github.com/vektra/mockery)
   These unit tests would only test the domain/application layer. In order to test the system as a whole and actually check that the DB implementation works I would have to implement functional tests too.
 
-- Pagination: I have avoided implementing it as this is a demo project. Pagination is a tricky topic because it depends on how
-  does the application display the results. I would definitely try and use a timestamp approach if possible but being mindful about how the decisions are stored in the database.
+- Pagination: I have avoided implementing it for simplicity as this is a demo project and I don't know what business
+  decisions have been made on the UI.
 
 
 ## Assumptions
-My main assumption in this project is that when a decision is made by a user (a like), only 1 row is created to represent this decision in the database. If the user decides to change their mind then we update this row. This way we always have 1 row per 'author_id' and 'recipient_id' pair, and another one for the opposite situation. 
+My main assumption in this project is that when a decision is made by a user (a like), only 1 row is created to represent this decision in the database. If the user decides to change their mind then we update this row. This way we always have 1 row per 'author_id' and 'recipient_id' pair and vice versa.
 
-Users that have decided on thousands of users might be problematic, especially in the way I've written the code because too much data is pulled and processed to find new likes so having dedicated SQL query will be a better method than processing everything by code.
+Users that have decided on thousands of users is problematic because in my implementation too much data is pulled and processed to find new likes, we should not calculate them but store new likes.
 
-The problem about the amount of rows in the decisions table can be improved by creating a two key index on the 'author_id' and 'recipient_id' columns since we can have only 1 record per pair, this way we can speed up the SQL query time. Of course there are other methods too (like region segregation) but this is a topic for a different discussion.
+When a like is made, we can store the like in the DB and check for a match, if no match is found then store this new incoming like in Redis (a temporary incoming likes index), then the user just queries from Redis the new likes and we don't have to calculate anything.
 
 
 ## Codebase Structure
