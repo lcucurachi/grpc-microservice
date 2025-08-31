@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -35,7 +36,11 @@ type testCaseData struct {
 }
 
 func Test_ListLikedYou(t *testing.T) {
+
+	nowTime := time.Now()
+
 	testCases := []testCaseData{
+		// User 1 likers: user id 2
 		{
 			inputData: inputData{
 				ctx: context.Background(),
@@ -49,7 +54,7 @@ func Test_ListLikedYou(t *testing.T) {
 					Likers: []*explore.ListLikedYouResponse_Liker{
 						{
 							ActorId:       "2",
-							UnixTimestamp: 0,
+							UnixTimestamp: uint64(nowTime.Unix()),
 						},
 					},
 					NextPaginationToken: nil,
@@ -63,17 +68,33 @@ func Test_ListLikedYou(t *testing.T) {
 						AuthorID:    2,
 						RecipientID: 1,
 						Liked:       true,
-						CreatedAt:   time.Now(),
-						UpdatedAt:   time.Now(),
+						CreatedAt:   nowTime,
+						UpdatedAt:   nowTime,
 					},
 				},
 				dbError: nil,
 			},
 		},
+		// User 1 likers returns error
 		{
-			// Add more tests and improve testing functions
+			inputData: inputData{
+				ctx: context.Background(),
+				request: &explore.ListLikedYouRequest{
+					RecipientUserId: "1",
+					PaginationToken: nil,
+				},
+			},
+			expectations: expectation{
+				response: nil,
+				err:      errors.New("error getting liked decisions for recipient id: Error executing query"),
+			},
+			mocksData: mockData{
+				dbDecisions: nil,
+				dbError:     errors.New("Error executing query"),
+			},
 		},
 	}
+	// Add more tests and improve testing functions
 
 	for _, testCase := range testCases {
 		listLikedYou_tester_func(t, testCase)
@@ -91,16 +112,27 @@ func listLikedYou_tester_func(t *testing.T, testCase testCaseData) {
 
 	response, err := explorerService.ListLikedYou(testCase.inputData.ctx, testCase.inputData.request)
 
-	for i, like := range response.Likers {
-		assert.Equal(t, like.ActorId, testCase.expectations.response.Likers[i].ActorId)
-
-		// Unnecessary but would be nice to mock
-		// assert.Equal(like.UnixTimestamp, testCase.expectations.response.Likers[i].UnixTimestamp)
+	if testCase.expectations.err != nil && err == nil {
+		t.FailNow()
+	} else if testCase.expectations.err == nil && err != nil {
+		t.FailNow()
 	}
 
-	assert.Equal(t, response.NextPaginationToken, testCase.expectations.response.NextPaginationToken)
+	if testCase.expectations.err != nil && err != nil {
+		assert.Equal(t, err.Error(), testCase.expectations.err.Error())
+		assert.Equal(t, response, testCase.expectations.response)
+	} else {
+		assert.Equal(t, len(response.Likers), len(testCase.expectations.response.Likers))
 
-	assert.Equal(t, err, testCase.expectations.err)
+		if len(response.Likers) == len(testCase.expectations.response.Likers) {
+			for i, like := range response.Likers {
+				assert.Equal(t, like.ActorId, testCase.expectations.response.Likers[i].ActorId)
+				assert.Equal(t, like.UnixTimestamp, uint64(testCase.mocksData.dbDecisions[i].UpdatedAt.Unix()))
+			}
+		}
+
+		assert.Equal(t, response.NextPaginationToken, testCase.expectations.response.NextPaginationToken)
+	}
 
 	repositoryMock.AssertExpectations(t)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/lokker96/grpc_project/domain/entity"
 	"github.com/lokker96/grpc_project/domain/repository"
@@ -72,9 +71,7 @@ func (s *ExploreServer) ListLikedYou(ctx context.Context, request *ep.ListLikedY
 	for _, dec := range decisions {
 		likers = append(likers, &ep.ListLikedYouResponse_Liker{
 			ActorId:       strconv.Itoa(int(dec.AuthorID)),
-			UnixTimestamp: uint64(time.Now().Unix()),
-			// Is this the timestamp when the profile liked the user?
-			// If yes, I would get it from the DB using the updated_at field from the decision table
+			UnixTimestamp: uint64(dec.UpdatedAt.Unix()), // When was the decision last made
 		})
 	}
 
