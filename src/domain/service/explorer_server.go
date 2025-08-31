@@ -70,7 +70,7 @@ func (s *ExploreServer) ListLikedYou(ctx context.Context, request *ep.ListLikedY
 	decisions, err := s.explorerRepository.GetDecisionsForRecipientId(ctx, recipientUserID, &liked)
 	if err != nil {
 		return nil, fmt.Errorf("error getting liked decisions for recipient id: %w", err)
-	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+	} else if errors.Is(err, &domainError.DecisionNotFoundErr{}) {
 		// Do nothing
 	}
 
@@ -101,14 +101,14 @@ func (s *ExploreServer) ListNewLikedYou(ctx context.Context, request *ep.ListLik
 	userDecisionsLiked, err := s.explorerRepository.GetDecisionsForUserId(ctx, recipientUserID, &liked)
 	if err != nil {
 		return nil, fmt.Errorf("error getting user decisions list: %w", err)
-	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+	} else if errors.Is(err, &domainError.DecisionNotFoundErr{}) {
 		// Do nothing
 	}
 
 	recipientDecisionsLiked, err := s.explorerRepository.GetDecisionsForRecipientId(ctx, recipientUserID, &liked)
 	if err != nil {
 		return nil, fmt.Errorf("error getting liked decisions for user id: %w", err)
-	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+	} else if errors.Is(err, &domainError.DecisionNotFoundErr{}) {
 		// Do nothing
 	}
 
@@ -165,7 +165,7 @@ func (s *ExploreServer) PutDecision(ctx context.Context, request *ep.PutDecision
 	err = s.explorerRepository.UpdateDecision(ctx, actorUserId, recipientUserId, request.GetLikedRecipient())
 	if err != nil {
 		return nil, fmt.Errorf("error putting decision: %w", err)
-	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+	} else if errors.Is(err, &domainError.DecisionNotFoundErr{}) {
 		err = s.explorerRepository.CreateDecision(ctx,
 			&entity.Decision{
 				AuthorID:    uint(actorUserId),
