@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/lokker96/grpc_project/domain/entity"
+	domainError "github.com/lokker96/grpc_project/domain/error"
 	"github.com/lokker96/grpc_project/domain/repository"
 	ep "github.com/lokker96/grpc_project/infrastructure/proto/explore"
 )
@@ -27,24 +29,26 @@ func NewExplorerServer(explorerRepository repository.ExplorerRepository) *Explor
 // Like: 2 -> 1
 // Like: 4 -> 1
 func (s *ExploreServer) BuildDummyDataset() {
-	s.explorerRepository.CreateUser(&entity.User{})
-	s.explorerRepository.CreateUser(&entity.User{})
-	s.explorerRepository.CreateUser(&entity.User{})
-	s.explorerRepository.CreateUser(&entity.User{})
+	ctx := context.Background()
 
-	s.explorerRepository.CreateDecision(&entity.Decision{
+	s.explorerRepository.CreateUser(ctx, &entity.User{})
+	s.explorerRepository.CreateUser(ctx, &entity.User{})
+	s.explorerRepository.CreateUser(ctx, &entity.User{})
+	s.explorerRepository.CreateUser(ctx, &entity.User{})
+
+	s.explorerRepository.CreateDecision(ctx, &entity.Decision{
 		AuthorID:    1,
 		RecipientID: 2,
 		Liked:       true,
 	})
 
-	s.explorerRepository.CreateDecision(&entity.Decision{
+	s.explorerRepository.CreateDecision(ctx, &entity.Decision{
 		AuthorID:    2,
 		RecipientID: 1,
 		Liked:       true,
 	})
 
-	s.explorerRepository.CreateDecision(&entity.Decision{
+	s.explorerRepository.CreateDecision(ctx, &entity.Decision{
 		AuthorID:    4,
 		RecipientID: 1,
 		Liked:       true,
@@ -63,9 +67,11 @@ func (s *ExploreServer) ListLikedYou(ctx context.Context, request *ep.ListLikedY
 
 	liked := true
 
-	decisions, err := s.explorerRepository.GetDecisionsForRecipientId(recipientUserID, &liked)
+	decisions, err := s.explorerRepository.GetDecisionsForRecipientId(ctx, recipientUserID, &liked)
 	if err != nil {
 		return nil, fmt.Errorf("error getting liked decisions for recipient id: %w", err)
+	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+		// Do nothing
 	}
 
 	for _, dec := range decisions {
@@ -92,14 +98,18 @@ func (s *ExploreServer) ListNewLikedYou(ctx context.Context, request *ep.ListLik
 
 	liked := true
 
-	userDecisionsLiked, err := s.explorerRepository.GetDecisionsForUserId(recipientUserID, &liked)
+	userDecisionsLiked, err := s.explorerRepository.GetDecisionsForUserId(ctx, recipientUserID, &liked)
 	if err != nil {
 		return nil, fmt.Errorf("error getting user decisions list: %w", err)
+	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+		// Do nothing
 	}
 
-	recipientDecisionsLiked, err := s.explorerRepository.GetDecisionsForRecipientId(recipientUserID, &liked)
+	recipientDecisionsLiked, err := s.explorerRepository.GetDecisionsForRecipientId(ctx, recipientUserID, &liked)
 	if err != nil {
 		return nil, fmt.Errorf("error getting liked decisions for user id: %w", err)
+	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+		// Do nothing
 	}
 
 	usersLiked := map[int]bool{}
@@ -132,7 +142,7 @@ func (s *ExploreServer) CountLikedYou(ctx context.Context, request *ep.CountLike
 	}
 
 	// Ideally we should check that the recipient user id exists first by calling a method to check
-	result := s.explorerRepository.GetLikesCountByProfileId(recipientUserID)
+	result := s.explorerRepository.GetLikesCountByProfileId(ctx, recipientUserID)
 
 	return &ep.CountLikedYouResponse{
 		Count: uint64(result),
@@ -152,12 +162,23 @@ func (s *ExploreServer) PutDecision(ctx context.Context, request *ep.PutDecision
 
 	// Ideally we should check that both the user ids exists before calling this.
 	// This is especially true if this routine is called from other microservices and not only by the user app.
-	err = s.explorerRepository.UpdateDecision(actorUserId, recipientUserId, request.GetLikedRecipient())
+	err = s.explorerRepository.UpdateDecision(ctx, actorUserId, recipientUserId, request.GetLikedRecipient())
 	if err != nil {
 		return nil, fmt.Errorf("error putting decision: %w", err)
+	} else if errors.As(err, &domainError.DecisionNotFoundErr{}) {
+		err = s.explorerRepository.CreateDecision(ctx,
+			&entity.Decision{
+				AuthorID:    uint(actorUserId),
+				RecipientID: uint(recipientUserId),
+				Liked:       request.GetLikedRecipient(),
+			})
+
+		if err != nil {
+			return nil, fmt.Errorf("error putting decision: %w", err)
+		}
 	}
 
-	mutualLikes := s.explorerRepository.FindMutualLike(actorUserId, recipientUserId)
+	mutualLikes := s.explorerRepository.FindMutualLike(ctx, actorUserId, recipientUserId)
 
 	return &ep.PutDecisionResponse{
 		MutualLikes: mutualLikes,

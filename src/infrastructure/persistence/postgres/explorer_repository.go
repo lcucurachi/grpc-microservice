@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/lokker96/grpc_project/domain/entity"
+	domainError "github.com/lokker96/grpc_project/domain/error"
 	"github.com/lokker96/grpc_project/domain/repository"
 
 	"errors"
@@ -14,23 +15,21 @@ import (
 
 // The explorer repository implements the method we can use to access data from the DB.
 type explorerRepository struct {
-	ctx context.Context
-	db  *gorm.DB
+	db *gorm.DB
 }
 
-func NewExplorerRepository(ctx context.Context, db *gorm.DB) repository.ExplorerRepository {
+func NewExplorerRepository(db *gorm.DB) repository.ExplorerRepository {
 	return &explorerRepository{
-		ctx: ctx,
-		db:  db,
+		db: db,
 	}
 }
 
 // Helper function to setup some dummy data
-func (r *explorerRepository) CreateUser(user *entity.User) error {
+func (r *explorerRepository) CreateUser(ctx context.Context, user *entity.User) error {
 	// using gorm transactions to make it easier to rollback if there are any issues,
 	// this is typically used in more complex repository methods to preserve data integrity
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(r.ctx).Create(&user).Error; err != nil {
+		if err := tx.WithContext(ctx).Create(&user).Error; err != nil {
 			return fmt.Errorf("error on creating user in db: %w", err)
 		}
 
@@ -38,9 +37,9 @@ func (r *explorerRepository) CreateUser(user *entity.User) error {
 	})
 }
 
-func (r *explorerRepository) CreateDecision(decision *entity.Decision) error {
+func (r *explorerRepository) CreateDecision(ctx context.Context, decision *entity.Decision) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(r.ctx).Create(&decision).Error; err != nil {
+		if err := tx.WithContext(ctx).Create(&decision).Error; err != nil {
 			return fmt.Errorf("error on creating decision in db: %w", err)
 		}
 
@@ -48,10 +47,10 @@ func (r *explorerRepository) CreateDecision(decision *entity.Decision) error {
 	})
 }
 
-func (r *explorerRepository) GetDecisionsForRecipientId(userID int, liked *bool) ([]entity.Decision, error) {
+func (r *explorerRepository) GetDecisionsForRecipientId(ctx context.Context, userID int, liked *bool) ([]entity.Decision, error) {
 	var result []entity.Decision
 
-	queryBuilder := r.db.WithContext(r.ctx).Model(&entity.Decision{})
+	queryBuilder := r.db.WithContext(ctx).Model(&entity.Decision{})
 
 	queryBuilder = queryBuilder.Where("recipient_id = ?", uint(userID))
 
@@ -63,8 +62,7 @@ func (r *explorerRepository) GetDecisionsForRecipientId(userID int, liked *bool)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// We should pack the error into a custom error that we can handle at the application layer
-			return nil, nil
+			return nil, domainError.NewDecisionNotFoundErr()
 		} else {
 			return nil, fmt.Errorf("error searching for decisions liked for user id: %w", err)
 		}
@@ -73,10 +71,10 @@ func (r *explorerRepository) GetDecisionsForRecipientId(userID int, liked *bool)
 	return result, nil
 }
 
-func (r *explorerRepository) GetDecisionsForUserId(userID int, liked *bool) ([]entity.Decision, error) {
+func (r *explorerRepository) GetDecisionsForUserId(ctx context.Context, userID int, liked *bool) ([]entity.Decision, error) {
 	var result []entity.Decision
 
-	queryBuilder := r.db.WithContext(r.ctx).Model(&entity.Decision{})
+	queryBuilder := r.db.WithContext(ctx).Model(&entity.Decision{})
 
 	queryBuilder = queryBuilder.Where("author_id = ?", uint(userID))
 
@@ -88,8 +86,7 @@ func (r *explorerRepository) GetDecisionsForUserId(userID int, liked *bool) ([]e
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// We should pack the error into a custom error so that we can handle it at the application layer
-			return nil, nil
+			return nil, domainError.NewDecisionNotFoundErr()
 		} else {
 			return nil, fmt.Errorf("error searching for decisions for user id: %w", err)
 		}
@@ -98,10 +95,10 @@ func (r *explorerRepository) GetDecisionsForUserId(userID int, liked *bool) ([]e
 	return result, nil
 }
 
-func (r *explorerRepository) GetLikesCountByProfileId(profileID int) int64 {
+func (r *explorerRepository) GetLikesCountByProfileId(ctx context.Context, profileID int) int64 {
 	var count int64
 
-	queryBuilder := r.db.WithContext(r.ctx).Model(&entity.Decision{})
+	queryBuilder := r.db.WithContext(ctx).Model(&entity.Decision{})
 
 	queryBuilder = queryBuilder.Where("recipient_id = ?", uint(profileID))
 	queryBuilder = queryBuilder.Where("liked = ?", true)
@@ -111,8 +108,8 @@ func (r *explorerRepository) GetLikesCountByProfileId(profileID int) int64 {
 	return count
 }
 
-func (r *explorerRepository) UpdateDecision(userID int, recipientUserId int, liked bool) error {
-	queryBuilder := r.db.WithContext(r.ctx).Model(&entity.Decision{})
+func (r *explorerRepository) UpdateDecision(ctx context.Context, userID int, recipientUserId int, liked bool) error {
+	queryBuilder := r.db.WithContext(ctx).Model(&entity.Decision{})
 
 	queryBuilder = queryBuilder.Where("author_id = ?", uint(userID))
 	queryBuilder = queryBuilder.Where("recipient_id = ?", uint(recipientUserId))
@@ -121,13 +118,7 @@ func (r *explorerRepository) UpdateDecision(userID int, recipientUserId int, lik
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			// We should pack the error into a custom error so that we can handle it at the application layer
-			r.CreateDecision(&entity.Decision{
-				AuthorID:    uint(userID),
-				RecipientID: uint(recipientUserId),
-				Liked:       liked,
-			})
-			return nil
+			return domainError.NewDecisionNotFoundErr()
 		} else {
 			return fmt.Errorf("error updating decision: %w", result.Error)
 		}
@@ -136,11 +127,11 @@ func (r *explorerRepository) UpdateDecision(userID int, recipientUserId int, lik
 	return nil
 }
 
-func (r *explorerRepository) FindMutualLike(userID int, recipientUserID int) bool {
+func (r *explorerRepository) FindMutualLike(ctx context.Context, userID int, recipientUserID int) bool {
 	var actorLikesCount int64
 	var recipientLikesCount int64
 
-	queryBuilder := r.db.WithContext(r.ctx).Model(&entity.Decision{})
+	queryBuilder := r.db.WithContext(ctx).Model(&entity.Decision{})
 
 	queryBuilder = queryBuilder.Where("author_id = ?", userID)
 	queryBuilder = queryBuilder.Where("recipient_id = ?", recipientUserID)
@@ -148,7 +139,7 @@ func (r *explorerRepository) FindMutualLike(userID int, recipientUserID int) boo
 
 	queryBuilder.Count(&actorLikesCount)
 
-	queryBuilder = r.db.WithContext(r.ctx).Model(&entity.Decision{})
+	queryBuilder = r.db.WithContext(ctx).Model(&entity.Decision{})
 
 	queryBuilder = queryBuilder.Where("author_id = ?", recipientUserID)
 	queryBuilder = queryBuilder.Where("recipient_id = ?", userID)

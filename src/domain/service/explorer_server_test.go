@@ -105,7 +105,7 @@ func listLikedYou_tester_func(t *testing.T, testCase testCaseData) {
 	repositoryMock := &repository_mock.MockExplorerRepository{}
 
 	repositoryMock.
-		On("GetDecisionsForRecipientId", mock.AnythingOfType("int"), mock.AnythingOfType("*bool")).
+		On("GetDecisionsForRecipientId", mock.Anything, mock.AnythingOfType("int"), mock.AnythingOfType("*bool")).
 		Once().Return(testCase.mocksData.dbDecisions, testCase.mocksData.dbError)
 
 	explorerService := NewExplorerServer(repositoryMock)

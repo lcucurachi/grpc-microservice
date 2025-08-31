@@ -1,7 +1,6 @@
 package container
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -14,7 +13,6 @@ import (
 // This is useful for setting up the internal container infrastructure
 // and hide complexity from the main function
 type Container struct {
-	// ctx            context.Context // Context for the container
 	ExplorerServer *service.ExploreServer
 }
 
@@ -45,7 +43,7 @@ func NewContainer() (*Container, error) {
 	}
 
 	// Build new explorer repository with the db connection created before
-	explorerRepository := postgres.NewExplorerRepository(context.Background(), dbConnection)
+	explorerRepository := postgres.NewExplorerRepository(dbConnection)
 
 	// Create the explorer server using the gRPC server code and attach the explorer
 	// repository that implements the database routines for accessing the data using gorm

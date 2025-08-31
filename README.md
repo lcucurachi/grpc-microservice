@@ -32,8 +32,7 @@ The project has been implemented following this structure:
 
 - Errors: I kept a simple approach using the standard 'log' and 'fmt' libraries although I personally
   prefer using an external library that allows you to follow the errors more easily by providing a
-  stacktrace which can be stored in the server logs. Also, we should wrap errors (like in the DB)
-  so that we can decide what to do when something occurs at the application layer.
+  stacktrace which can be stored in the server logs.
   (I'm referencing this stacktrace library if someone is interested https://github.com/palantir/stacktrace)
 
 - Dummy Data: I've added a routine to build some dummy data to play with the gRPC methods more easily
@@ -67,8 +66,7 @@ Here I explain what the folders mean.
 -- src/client - the client example code that can be used to make gRPC calls to the server
 
 -- src/domain - this folder would contain the business logic but because we want to keep things simple I've
-   only implemented entities (datatabase tables mapped to a structure) and services (explorer service server). Ideally here
-   we would have the business logic that isn't aware of the underlying implementation like a postgreSQL database or
+   only implemented entities (datatabase tables mapped to a structure), services (explorer service server) and custom erors. Ideally here we would have the business logic that isn't aware of the underlying implementation like a postgreSQL database or
    caching tools and so on. Repositories would describe interfaces that data storage solutions implement while services would 
    call these interfaces to provide some functionality for the endpoints. Then we would inject dependencies for database and other implemetations in the services inside the container by building services with specific repositories and so on. This would be too much for this example so I kept things simple but I wanted to give an idea of what a real microservice might look like.
 
@@ -110,7 +108,7 @@ If you need to update the proto code, then use the first command below to update
 
 
 ## Generate the mocks
-First install the mockery library and then execute the binary (https://github.com/vektra/mockery).
+First install the mockery library (https://vektra.github.io/mockery/latest/installation/) and then execute the binary (https://vektra.github.io/mockery/latest/running/).
 The config file in the src folder will take care of configuring which interfaces need to be mocked.
 
 The mocks will be generated in 'src/mocks'.

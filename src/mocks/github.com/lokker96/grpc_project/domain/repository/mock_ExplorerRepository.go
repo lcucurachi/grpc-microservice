@@ -3,6 +3,8 @@
 package repository
 
 import (
+	context "context"
+
 	entity "github.com/lokker96/grpc_project/domain/entity"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -20,17 +22,17 @@ func (_m *MockExplorerRepository) EXPECT() *MockExplorerRepository_Expecter {
 	return &MockExplorerRepository_Expecter{mock: &_m.Mock}
 }
 
-// CreateDecision provides a mock function with given fields: decision
-func (_m *MockExplorerRepository) CreateDecision(decision *entity.Decision) error {
-	ret := _m.Called(decision)
+// CreateDecision provides a mock function with given fields: ctx, decision
+func (_m *MockExplorerRepository) CreateDecision(ctx context.Context, decision *entity.Decision) error {
+	ret := _m.Called(ctx, decision)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateDecision")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entity.Decision) error); ok {
-		r0 = rf(decision)
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.Decision) error); ok {
+		r0 = rf(ctx, decision)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -44,14 +46,15 @@ type MockExplorerRepository_CreateDecision_Call struct {
 }
 
 // CreateDecision is a helper method to define mock.On call
+//   - ctx context.Context
 //   - decision *entity.Decision
-func (_e *MockExplorerRepository_Expecter) CreateDecision(decision interface{}) *MockExplorerRepository_CreateDecision_Call {
-	return &MockExplorerRepository_CreateDecision_Call{Call: _e.mock.On("CreateDecision", decision)}
+func (_e *MockExplorerRepository_Expecter) CreateDecision(ctx interface{}, decision interface{}) *MockExplorerRepository_CreateDecision_Call {
+	return &MockExplorerRepository_CreateDecision_Call{Call: _e.mock.On("CreateDecision", ctx, decision)}
 }
 
-func (_c *MockExplorerRepository_CreateDecision_Call) Run(run func(decision *entity.Decision)) *MockExplorerRepository_CreateDecision_Call {
+func (_c *MockExplorerRepository_CreateDecision_Call) Run(run func(ctx context.Context, decision *entity.Decision)) *MockExplorerRepository_CreateDecision_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*entity.Decision))
+		run(args[0].(context.Context), args[1].(*entity.Decision))
 	})
 	return _c
 }
@@ -61,22 +64,22 @@ func (_c *MockExplorerRepository_CreateDecision_Call) Return(_a0 error) *MockExp
 	return _c
 }
 
-func (_c *MockExplorerRepository_CreateDecision_Call) RunAndReturn(run func(*entity.Decision) error) *MockExplorerRepository_CreateDecision_Call {
+func (_c *MockExplorerRepository_CreateDecision_Call) RunAndReturn(run func(context.Context, *entity.Decision) error) *MockExplorerRepository_CreateDecision_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// CreateUser provides a mock function with given fields: user
-func (_m *MockExplorerRepository) CreateUser(user *entity.User) error {
-	ret := _m.Called(user)
+// CreateUser provides a mock function with given fields: ctx, user
+func (_m *MockExplorerRepository) CreateUser(ctx context.Context, user *entity.User) error {
+	ret := _m.Called(ctx, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateUser")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entity.User) error); ok {
-		r0 = rf(user)
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.User) error); ok {
+		r0 = rf(ctx, user)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -90,14 +93,15 @@ type MockExplorerRepository_CreateUser_Call struct {
 }
 
 // CreateUser is a helper method to define mock.On call
+//   - ctx context.Context
 //   - user *entity.User
-func (_e *MockExplorerRepository_Expecter) CreateUser(user interface{}) *MockExplorerRepository_CreateUser_Call {
-	return &MockExplorerRepository_CreateUser_Call{Call: _e.mock.On("CreateUser", user)}
+func (_e *MockExplorerRepository_Expecter) CreateUser(ctx interface{}, user interface{}) *MockExplorerRepository_CreateUser_Call {
+	return &MockExplorerRepository_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, user)}
 }
 
-func (_c *MockExplorerRepository_CreateUser_Call) Run(run func(user *entity.User)) *MockExplorerRepository_CreateUser_Call {
+func (_c *MockExplorerRepository_CreateUser_Call) Run(run func(ctx context.Context, user *entity.User)) *MockExplorerRepository_CreateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*entity.User))
+		run(args[0].(context.Context), args[1].(*entity.User))
 	})
 	return _c
 }
@@ -107,22 +111,22 @@ func (_c *MockExplorerRepository_CreateUser_Call) Return(_a0 error) *MockExplore
 	return _c
 }
 
-func (_c *MockExplorerRepository_CreateUser_Call) RunAndReturn(run func(*entity.User) error) *MockExplorerRepository_CreateUser_Call {
+func (_c *MockExplorerRepository_CreateUser_Call) RunAndReturn(run func(context.Context, *entity.User) error) *MockExplorerRepository_CreateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FindMutualLike provides a mock function with given fields: userID, recipientUserID
-func (_m *MockExplorerRepository) FindMutualLike(userID int, recipientUserID int) bool {
-	ret := _m.Called(userID, recipientUserID)
+// FindMutualLike provides a mock function with given fields: ctx, userID, recipientUserID
+func (_m *MockExplorerRepository) FindMutualLike(ctx context.Context, userID int, recipientUserID int) bool {
+	ret := _m.Called(ctx, userID, recipientUserID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindMutualLike")
 	}
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
-		r0 = rf(userID, recipientUserID)
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) bool); ok {
+		r0 = rf(ctx, userID, recipientUserID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -136,15 +140,16 @@ type MockExplorerRepository_FindMutualLike_Call struct {
 }
 
 // FindMutualLike is a helper method to define mock.On call
+//   - ctx context.Context
 //   - userID int
 //   - recipientUserID int
-func (_e *MockExplorerRepository_Expecter) FindMutualLike(userID interface{}, recipientUserID interface{}) *MockExplorerRepository_FindMutualLike_Call {
-	return &MockExplorerRepository_FindMutualLike_Call{Call: _e.mock.On("FindMutualLike", userID, recipientUserID)}
+func (_e *MockExplorerRepository_Expecter) FindMutualLike(ctx interface{}, userID interface{}, recipientUserID interface{}) *MockExplorerRepository_FindMutualLike_Call {
+	return &MockExplorerRepository_FindMutualLike_Call{Call: _e.mock.On("FindMutualLike", ctx, userID, recipientUserID)}
 }
 
-func (_c *MockExplorerRepository_FindMutualLike_Call) Run(run func(userID int, recipientUserID int)) *MockExplorerRepository_FindMutualLike_Call {
+func (_c *MockExplorerRepository_FindMutualLike_Call) Run(run func(ctx context.Context, userID int, recipientUserID int)) *MockExplorerRepository_FindMutualLike_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(int))
+		run(args[0].(context.Context), args[1].(int), args[2].(int))
 	})
 	return _c
 }
@@ -154,14 +159,14 @@ func (_c *MockExplorerRepository_FindMutualLike_Call) Return(_a0 bool) *MockExpl
 	return _c
 }
 
-func (_c *MockExplorerRepository_FindMutualLike_Call) RunAndReturn(run func(int, int) bool) *MockExplorerRepository_FindMutualLike_Call {
+func (_c *MockExplorerRepository_FindMutualLike_Call) RunAndReturn(run func(context.Context, int, int) bool) *MockExplorerRepository_FindMutualLike_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetDecisionsForRecipientId provides a mock function with given fields: userID, liked
-func (_m *MockExplorerRepository) GetDecisionsForRecipientId(userID int, liked *bool) ([]entity.Decision, error) {
-	ret := _m.Called(userID, liked)
+// GetDecisionsForRecipientId provides a mock function with given fields: ctx, userID, liked
+func (_m *MockExplorerRepository) GetDecisionsForRecipientId(ctx context.Context, userID int, liked *bool) ([]entity.Decision, error) {
+	ret := _m.Called(ctx, userID, liked)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDecisionsForRecipientId")
@@ -169,19 +174,19 @@ func (_m *MockExplorerRepository) GetDecisionsForRecipientId(userID int, liked *
 
 	var r0 []entity.Decision
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, *bool) ([]entity.Decision, error)); ok {
-		return rf(userID, liked)
+	if rf, ok := ret.Get(0).(func(context.Context, int, *bool) ([]entity.Decision, error)); ok {
+		return rf(ctx, userID, liked)
 	}
-	if rf, ok := ret.Get(0).(func(int, *bool) []entity.Decision); ok {
-		r0 = rf(userID, liked)
+	if rf, ok := ret.Get(0).(func(context.Context, int, *bool) []entity.Decision); ok {
+		r0 = rf(ctx, userID, liked)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]entity.Decision)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(int, *bool) error); ok {
-		r1 = rf(userID, liked)
+	if rf, ok := ret.Get(1).(func(context.Context, int, *bool) error); ok {
+		r1 = rf(ctx, userID, liked)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -195,15 +200,16 @@ type MockExplorerRepository_GetDecisionsForRecipientId_Call struct {
 }
 
 // GetDecisionsForRecipientId is a helper method to define mock.On call
+//   - ctx context.Context
 //   - userID int
 //   - liked *bool
-func (_e *MockExplorerRepository_Expecter) GetDecisionsForRecipientId(userID interface{}, liked interface{}) *MockExplorerRepository_GetDecisionsForRecipientId_Call {
-	return &MockExplorerRepository_GetDecisionsForRecipientId_Call{Call: _e.mock.On("GetDecisionsForRecipientId", userID, liked)}
+func (_e *MockExplorerRepository_Expecter) GetDecisionsForRecipientId(ctx interface{}, userID interface{}, liked interface{}) *MockExplorerRepository_GetDecisionsForRecipientId_Call {
+	return &MockExplorerRepository_GetDecisionsForRecipientId_Call{Call: _e.mock.On("GetDecisionsForRecipientId", ctx, userID, liked)}
 }
 
-func (_c *MockExplorerRepository_GetDecisionsForRecipientId_Call) Run(run func(userID int, liked *bool)) *MockExplorerRepository_GetDecisionsForRecipientId_Call {
+func (_c *MockExplorerRepository_GetDecisionsForRecipientId_Call) Run(run func(ctx context.Context, userID int, liked *bool)) *MockExplorerRepository_GetDecisionsForRecipientId_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(*bool))
+		run(args[0].(context.Context), args[1].(int), args[2].(*bool))
 	})
 	return _c
 }
@@ -213,14 +219,14 @@ func (_c *MockExplorerRepository_GetDecisionsForRecipientId_Call) Return(_a0 []e
 	return _c
 }
 
-func (_c *MockExplorerRepository_GetDecisionsForRecipientId_Call) RunAndReturn(run func(int, *bool) ([]entity.Decision, error)) *MockExplorerRepository_GetDecisionsForRecipientId_Call {
+func (_c *MockExplorerRepository_GetDecisionsForRecipientId_Call) RunAndReturn(run func(context.Context, int, *bool) ([]entity.Decision, error)) *MockExplorerRepository_GetDecisionsForRecipientId_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetDecisionsForUserId provides a mock function with given fields: userID, liked
-func (_m *MockExplorerRepository) GetDecisionsForUserId(userID int, liked *bool) ([]entity.Decision, error) {
-	ret := _m.Called(userID, liked)
+// GetDecisionsForUserId provides a mock function with given fields: ctx, userID, liked
+func (_m *MockExplorerRepository) GetDecisionsForUserId(ctx context.Context, userID int, liked *bool) ([]entity.Decision, error) {
+	ret := _m.Called(ctx, userID, liked)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDecisionsForUserId")
@@ -228,19 +234,19 @@ func (_m *MockExplorerRepository) GetDecisionsForUserId(userID int, liked *bool)
 
 	var r0 []entity.Decision
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, *bool) ([]entity.Decision, error)); ok {
-		return rf(userID, liked)
+	if rf, ok := ret.Get(0).(func(context.Context, int, *bool) ([]entity.Decision, error)); ok {
+		return rf(ctx, userID, liked)
 	}
-	if rf, ok := ret.Get(0).(func(int, *bool) []entity.Decision); ok {
-		r0 = rf(userID, liked)
+	if rf, ok := ret.Get(0).(func(context.Context, int, *bool) []entity.Decision); ok {
+		r0 = rf(ctx, userID, liked)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]entity.Decision)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(int, *bool) error); ok {
-		r1 = rf(userID, liked)
+	if rf, ok := ret.Get(1).(func(context.Context, int, *bool) error); ok {
+		r1 = rf(ctx, userID, liked)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -254,15 +260,16 @@ type MockExplorerRepository_GetDecisionsForUserId_Call struct {
 }
 
 // GetDecisionsForUserId is a helper method to define mock.On call
+//   - ctx context.Context
 //   - userID int
 //   - liked *bool
-func (_e *MockExplorerRepository_Expecter) GetDecisionsForUserId(userID interface{}, liked interface{}) *MockExplorerRepository_GetDecisionsForUserId_Call {
-	return &MockExplorerRepository_GetDecisionsForUserId_Call{Call: _e.mock.On("GetDecisionsForUserId", userID, liked)}
+func (_e *MockExplorerRepository_Expecter) GetDecisionsForUserId(ctx interface{}, userID interface{}, liked interface{}) *MockExplorerRepository_GetDecisionsForUserId_Call {
+	return &MockExplorerRepository_GetDecisionsForUserId_Call{Call: _e.mock.On("GetDecisionsForUserId", ctx, userID, liked)}
 }
 
-func (_c *MockExplorerRepository_GetDecisionsForUserId_Call) Run(run func(userID int, liked *bool)) *MockExplorerRepository_GetDecisionsForUserId_Call {
+func (_c *MockExplorerRepository_GetDecisionsForUserId_Call) Run(run func(ctx context.Context, userID int, liked *bool)) *MockExplorerRepository_GetDecisionsForUserId_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(*bool))
+		run(args[0].(context.Context), args[1].(int), args[2].(*bool))
 	})
 	return _c
 }
@@ -272,22 +279,22 @@ func (_c *MockExplorerRepository_GetDecisionsForUserId_Call) Return(_a0 []entity
 	return _c
 }
 
-func (_c *MockExplorerRepository_GetDecisionsForUserId_Call) RunAndReturn(run func(int, *bool) ([]entity.Decision, error)) *MockExplorerRepository_GetDecisionsForUserId_Call {
+func (_c *MockExplorerRepository_GetDecisionsForUserId_Call) RunAndReturn(run func(context.Context, int, *bool) ([]entity.Decision, error)) *MockExplorerRepository_GetDecisionsForUserId_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetLikesCountByProfileId provides a mock function with given fields: profileID
-func (_m *MockExplorerRepository) GetLikesCountByProfileId(profileID int) int64 {
-	ret := _m.Called(profileID)
+// GetLikesCountByProfileId provides a mock function with given fields: ctx, profileID
+func (_m *MockExplorerRepository) GetLikesCountByProfileId(ctx context.Context, profileID int) int64 {
+	ret := _m.Called(ctx, profileID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetLikesCountByProfileId")
 	}
 
 	var r0 int64
-	if rf, ok := ret.Get(0).(func(int) int64); ok {
-		r0 = rf(profileID)
+	if rf, ok := ret.Get(0).(func(context.Context, int) int64); ok {
+		r0 = rf(ctx, profileID)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
@@ -301,14 +308,15 @@ type MockExplorerRepository_GetLikesCountByProfileId_Call struct {
 }
 
 // GetLikesCountByProfileId is a helper method to define mock.On call
+//   - ctx context.Context
 //   - profileID int
-func (_e *MockExplorerRepository_Expecter) GetLikesCountByProfileId(profileID interface{}) *MockExplorerRepository_GetLikesCountByProfileId_Call {
-	return &MockExplorerRepository_GetLikesCountByProfileId_Call{Call: _e.mock.On("GetLikesCountByProfileId", profileID)}
+func (_e *MockExplorerRepository_Expecter) GetLikesCountByProfileId(ctx interface{}, profileID interface{}) *MockExplorerRepository_GetLikesCountByProfileId_Call {
+	return &MockExplorerRepository_GetLikesCountByProfileId_Call{Call: _e.mock.On("GetLikesCountByProfileId", ctx, profileID)}
 }
 
-func (_c *MockExplorerRepository_GetLikesCountByProfileId_Call) Run(run func(profileID int)) *MockExplorerRepository_GetLikesCountByProfileId_Call {
+func (_c *MockExplorerRepository_GetLikesCountByProfileId_Call) Run(run func(ctx context.Context, profileID int)) *MockExplorerRepository_GetLikesCountByProfileId_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
+		run(args[0].(context.Context), args[1].(int))
 	})
 	return _c
 }
@@ -318,22 +326,22 @@ func (_c *MockExplorerRepository_GetLikesCountByProfileId_Call) Return(_a0 int64
 	return _c
 }
 
-func (_c *MockExplorerRepository_GetLikesCountByProfileId_Call) RunAndReturn(run func(int) int64) *MockExplorerRepository_GetLikesCountByProfileId_Call {
+func (_c *MockExplorerRepository_GetLikesCountByProfileId_Call) RunAndReturn(run func(context.Context, int) int64) *MockExplorerRepository_GetLikesCountByProfileId_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpdateDecision provides a mock function with given fields: userID, recipientUserId, liked
-func (_m *MockExplorerRepository) UpdateDecision(userID int, recipientUserId int, liked bool) error {
-	ret := _m.Called(userID, recipientUserId, liked)
+// UpdateDecision provides a mock function with given fields: ctx, userID, recipientUserId, liked
+func (_m *MockExplorerRepository) UpdateDecision(ctx context.Context, userID int, recipientUserId int, liked bool) error {
+	ret := _m.Called(ctx, userID, recipientUserId, liked)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateDecision")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, bool) error); ok {
-		r0 = rf(userID, recipientUserId, liked)
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, bool) error); ok {
+		r0 = rf(ctx, userID, recipientUserId, liked)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -347,16 +355,17 @@ type MockExplorerRepository_UpdateDecision_Call struct {
 }
 
 // UpdateDecision is a helper method to define mock.On call
+//   - ctx context.Context
 //   - userID int
 //   - recipientUserId int
 //   - liked bool
-func (_e *MockExplorerRepository_Expecter) UpdateDecision(userID interface{}, recipientUserId interface{}, liked interface{}) *MockExplorerRepository_UpdateDecision_Call {
-	return &MockExplorerRepository_UpdateDecision_Call{Call: _e.mock.On("UpdateDecision", userID, recipientUserId, liked)}
+func (_e *MockExplorerRepository_Expecter) UpdateDecision(ctx interface{}, userID interface{}, recipientUserId interface{}, liked interface{}) *MockExplorerRepository_UpdateDecision_Call {
+	return &MockExplorerRepository_UpdateDecision_Call{Call: _e.mock.On("UpdateDecision", ctx, userID, recipientUserId, liked)}
 }
 
-func (_c *MockExplorerRepository_UpdateDecision_Call) Run(run func(userID int, recipientUserId int, liked bool)) *MockExplorerRepository_UpdateDecision_Call {
+func (_c *MockExplorerRepository_UpdateDecision_Call) Run(run func(ctx context.Context, userID int, recipientUserId int, liked bool)) *MockExplorerRepository_UpdateDecision_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(int), args[2].(bool))
+		run(args[0].(context.Context), args[1].(int), args[2].(int), args[3].(bool))
 	})
 	return _c
 }
@@ -366,7 +375,7 @@ func (_c *MockExplorerRepository_UpdateDecision_Call) Return(_a0 error) *MockExp
 	return _c
 }
 
-func (_c *MockExplorerRepository_UpdateDecision_Call) RunAndReturn(run func(int, int, bool) error) *MockExplorerRepository_UpdateDecision_Call {
+func (_c *MockExplorerRepository_UpdateDecision_Call) RunAndReturn(run func(context.Context, int, int, bool) error) *MockExplorerRepository_UpdateDecision_Call {
 	_c.Call.Return(run)
 	return _c
 }
